@@ -22,6 +22,15 @@
     "winston": "^3.18.3",
     "winston-daily-rotate-file": "^5.0.0"
   },
+  "scripts": {
+    "test": "mocha tests --recursive --timeout 20000",
+    "test:unit": "mocha tests/unit --recursive --timeout 20000",
+    "test:e2e": "mocha tests/e2e --recursive --timeout 30000",
+    "test:watch": "mocha tests --recursive --watch --timeout 20000",
+    "coverage": "nyc npm test",
+    "coverage:unit": "nyc npm run test:unit",
+    "coverage:e2e": "nyc npm run test:e2e"
+  },
   "devDependencies": {
     "chai": "^6.2.1",
     "mocha": "^11.7.5",
@@ -29,5 +38,18 @@
     "nyc": "^17.1.0",
     "sinon": "^21.0.0",
     "supertest": "^7.1.4"
+  },
+  "nyc": {
+    "check-coverage": true,
+    "lines": 90,
+    "functions": 90,
+    "branches": 90,
+    "statements": 90,
+    "exclude": [
+      "tests/**",
+      "coverage/**",
+      "*.config.js",
+      "server.js"
+    ]
   }
 }
