@@ -90,7 +90,16 @@ class AppointmentService {
         });
       }
     } catch (error) {
-      console.error('Failed to send appointment confirmation email:', error);
+      const logger = require('winston') || console;
+      if (logger.error) {
+        logger.error('Failed to send appointment confirmation email:', {
+          patientId: payload.patientId,
+          appointmentId: appointment._id,
+          error: error.message
+        });
+      } else {
+        console.error('Failed to send appointment confirmation email:', error);
+      }
     }
 
     return appointment;
@@ -207,7 +216,16 @@ class AppointmentService {
             });
           }
         } catch (error) {
-          console.error('Failed to send appointment cancellation email:', error);
+          const logger = require('winston') || console;
+          if (logger.error) {
+            logger.error('Failed to send appointment cancellation email:', {
+              appointmentId: id,
+              patientId: appointment.patientId,
+              error: error.message
+            });
+          } else {
+            console.error('Failed to send appointment cancellation email:', error);
+          }
         }
       }
     }

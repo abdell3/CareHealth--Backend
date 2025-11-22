@@ -161,7 +161,15 @@ class AuthService {
     try {
       await this.emailService.sendPasswordResetEmail(user.email, resetToken);
     } catch (error) {
-      console.error('Failed to send password reset email:', error);
+      const logger = require('winston') || console;
+      if (logger.error) {
+        logger.error('Failed to send password reset email:', {
+          email: user.email,
+          error: error.message
+        });
+      } else {
+        console.error('Failed to send password reset email:', error);
+      }
     }
 
     return true;
