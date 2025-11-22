@@ -5,7 +5,7 @@ const router = express.Router();
 router.use('/v1/auth', require('./auth.routes'));
 router.use('/v1/users', require('./users.routes'));
 router.use('/v1/patients', require('./patients.routes'));
-// router.use('/v1/appointments', require('./appointments.routes'));
+router.use('/v1/appointments', require('./appointments.routes'));
 // router.use('/v1/consultations', require('./consultations.routes'));
 // router.use('/v1/prescriptions', require('./prescriptions.routes'));
 // router.use('/v1/pharmacy', require('./pharmacy.routes'));

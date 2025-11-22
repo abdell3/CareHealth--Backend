@@ -6,9 +6,23 @@ class PatientRepository {
     return await patient.save();
   }
 
-  async findAll({ page = 1, limit = 10, search = '' }) {
+  async findAll({ page = 1, limit = 10, search = '', gender, city, isDeleted }) {
     const skip = (page - 1) * limit;
     const filter = {};
+
+    if (isDeleted !== undefined) {
+      filter.isDeleted = isDeleted;
+    } else {
+      filter.isDeleted = false;
+    }
+
+    if (gender) {
+      filter.gender = gender.toLowerCase();
+    }
+
+    if (city) {
+      filter.city = { $regex: city, $options: 'i' };
+    }
 
     if (search) {
       filter.$or = [
@@ -21,6 +35,7 @@ class PatientRepository {
 
     const [items, total] = await Promise.all([
       Patient.find(filter)
+        .select('-__v')
         .populate('createdBy', 'firstName lastName email')
         .populate('updatedBy', 'firstName lastName email')
         .skip(skip)
@@ -31,8 +46,16 @@ class PatientRepository {
 
     const totalPages = Math.ceil(total / limit);
 
+    const sanitizedItems = items.map(item => {
+      const itemObj = item.toObject();
+      if (!filter.isDeleted) {
+        delete itemObj.isDeleted;
+      }
+      return itemObj;
+    });
+
     return {
-      items,
+      items: sanitizedItems,
       pagination: {
         page,
         limit,
@@ -46,6 +69,7 @@ class PatientRepository {
 
   async findById(id) {
     return await Patient.findById(id)
+      .select('-__v')
       .populate('createdBy', 'firstName lastName email')
       .populate('updatedBy', 'firstName lastName email');
   }
@@ -56,20 +80,44 @@ class PatientRepository {
       { $set: data },
       { new: true, runValidators: true }
     )
+      .select('-__v')
       .populate('createdBy', 'firstName lastName email')
       .populate('updatedBy', 'firstName lastName email');
   }
 
-  async delete(id) {
-    return await Patient.findByIdAndDelete(id);
+  async delete(id, userId) {
+    return await Patient.findByIdAndUpdate(
+      id,
+      { $set: { isDeleted: true, updatedBy: userId } },
+      { new: true, runValidators: true }
+    );
+  }
+
+  async existsByEmail(email) {
+    if (!email) {
+      return null;
+    }
+    return await Patient.findOne({ 
+      email: email.toLowerCase().trim(),
+      isDeleted: false
+    });
   }
 
   async findByEmail(email) {
-    return await Patient.findOne({ email: email.toLowerCase().trim() });
+    if (!email) {
+      return null;
+    }
+    return await Patient.findOne({ 
+      email: email.toLowerCase().trim(),
+      isDeleted: false
+    });
   }
 
   async findByPhone(phone) {
-    return await Patient.findOne({ phone: phone.trim() });
+    return await Patient.findOne({ 
+      phone: phone.trim(),
+      isDeleted: false
+    });
   }
 }
 
