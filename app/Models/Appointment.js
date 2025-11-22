@@ -2,29 +2,48 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const appointmentSchema = new Schema({
-  patient: {
+  patientId: {
     type: Schema.Types.ObjectId,
     ref: 'Patient',
     required: true
   },
-  doctor: {
+  doctorId: {
     type: Schema.Types.ObjectId,
     ref: 'User',
     required: true
   },
-  date: {
+  startAt: {
     type: Date,
     required: true
+  },
+  endAt: {
+    type: Date,
+    required: true
+  },
+  status: {
+    type: String,
+    enum: ['scheduled', 'completed', 'cancelled'],
+    default: 'scheduled',
+    lowercase: true
   },
   reason: {
     type: String,
     trim: true
   },
-  status: {
+  location: {
     type: String,
-    enum: ['scheduled', 'cancelled', 'completed'],
-    default: 'scheduled',
-    lowercase: true
+    trim: true
+  },
+  metadata: {
+    type: Schema.Types.Mixed
+  },
+  createdBy: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  updatedBy: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
   }
 }, {
   timestamps: true,
@@ -32,6 +51,7 @@ const appointmentSchema = new Schema({
   strict: true
 });
 
-appointmentSchema.index({ doctor: 1, date: 1 }, { unique: true });
+appointmentSchema.index({ doctorId: 1, startAt: 1 });
+appointmentSchema.index({ reason: 'text' });
 
 module.exports = mongoose.model('Appointment', appointmentSchema);
