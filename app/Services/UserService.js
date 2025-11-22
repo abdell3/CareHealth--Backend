@@ -161,7 +161,16 @@ class UserService {
     try {
       await this.emailService.sendAccountSuspendedEmail(user.email, user.firstName);
     } catch (error) {
-      console.error('Failed to send suspension email:', error);
+      const logger = require('winston') || console;
+      if (logger.error) {
+        logger.error('Failed to send account suspended email:', {
+          email: user.email,
+          userId: id,
+          error: error.message
+        });
+      } else {
+        console.error('Failed to send suspension email:', error);
+      }
     }
 
     return suspendedUser;
@@ -191,7 +200,16 @@ class UserService {
     try {
       await this.emailService.sendAccountActivatedEmail(user.email, user.firstName);
     } catch (error) {
-      console.error('Failed to send activation email:', error);
+      const logger = require('winston') || console;
+      if (logger.error) {
+        logger.error('Failed to send account activated email:', {
+          email: user.email,
+          userId: id,
+          error: error.message
+        });
+      } else {
+        console.error('Failed to send activation email:', error);
+      }
     }
 
     return activatedUser;

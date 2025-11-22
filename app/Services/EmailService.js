@@ -1,6 +1,13 @@
 const nodemailer = require('nodemailer');
 const emailConfig = require('../../config/email');
 
+let winstonLogger = null;
+try {
+  winstonLogger = require('winston');
+} catch (error) {
+  winstonLogger = console;
+}
+
 class EmailService {
   constructor() {
     this.transporter = null;
@@ -11,11 +18,11 @@ class EmailService {
     this.transporter = nodemailer.createTransport({
       host: emailConfig.host,
       port: emailConfig.port,
-      secure: emailConfig.port === 465,
-      auth: {
-        user: emailConfig.user,
-        pass: emailConfig.pass
-      }
+      secure: emailConfig.secure,
+      auth: emailConfig.auth.user && emailConfig.auth.pass ? {
+        user: emailConfig.auth.user,
+        pass: emailConfig.auth.pass
+      } : undefined
     });
   }
 
@@ -38,7 +45,16 @@ class EmailService {
         messageId: info.messageId
       };
     } catch (error) {
-      console.error('Email sending failed:', error);
+      if (winstonLogger.error) {
+        winstonLogger.error('Email sending failed:', {
+          to,
+          subject,
+          error: error.message,
+          stack: error.stack
+        });
+      } else {
+        console.error('Email sending failed:', error);
+      }
       throw new Error(`Email sending failed: ${error.message}`);
     }
   }
@@ -70,7 +86,19 @@ class EmailService {
       </body>
       </html>
     `;
-    return await this.sendEmail(email, 'Password Reset Request - CareHealth EHR', html);
+    try {
+      return await this.sendEmail(email, 'Password Reset Request - CareHealth EHR', html);
+    } catch (error) {
+      if (winstonLogger.error) {
+        winstonLogger.error('Failed to send password reset email:', {
+          email,
+          error: error.message
+        });
+      } else {
+        console.error('Failed to send password reset email:', error);
+      }
+      throw error;
+    }
   }
 
   async sendAccountSuspendedEmail(email, firstName) {
@@ -93,7 +121,19 @@ class EmailService {
       </body>
       </html>
     `;
-    return await this.sendEmail(email, 'Account Suspended - CareHealth EHR', html);
+    try {
+      return await this.sendEmail(email, 'Account Suspended - CareHealth EHR', html);
+    } catch (error) {
+      if (winstonLogger.error) {
+        winstonLogger.error('Failed to send account suspended email:', {
+          email,
+          error: error.message
+        });
+      } else {
+        console.error('Failed to send account suspended email:', error);
+      }
+      throw error;
+    }
   }
 
   async sendAccountActivatedEmail(email, firstName) {
@@ -116,7 +156,19 @@ class EmailService {
       </body>
       </html>
     `;
-    return await this.sendEmail(email, 'Account Activated - CareHealth EHR', html);
+    try {
+      return await this.sendEmail(email, 'Account Activated - CareHealth EHR', html);
+    } catch (error) {
+      if (winstonLogger.error) {
+        winstonLogger.error('Failed to send account activated email:', {
+          email,
+          error: error.message
+        });
+      } else {
+        console.error('Failed to send account activated email:', error);
+      }
+      throw error;
+    }
   }
 
   async sendAppointmentConfirmationEmail(patientEmail, appointmentData) {
@@ -145,7 +197,19 @@ class EmailService {
       </body>
       </html>
     `;
-    return await this.sendEmail(patientEmail, 'Appointment Confirmation - CareHealth EHR', html);
+    try {
+      return await this.sendEmail(patientEmail, 'Appointment Confirmation - CareHealth EHR', html);
+    } catch (error) {
+      if (winstonLogger.error) {
+        winstonLogger.error('Failed to send appointment confirmation email:', {
+          patientEmail,
+          error: error.message
+        });
+      } else {
+        console.error('Failed to send appointment confirmation email:', error);
+      }
+      throw error;
+    }
   }
 
   async sendAppointmentCancelledEmail(patientEmail, appointmentData) {
@@ -173,7 +237,19 @@ class EmailService {
       </body>
       </html>
     `;
-    return await this.sendEmail(patientEmail, 'Appointment Cancelled - CareHealth EHR', html);
+    try {
+      return await this.sendEmail(patientEmail, 'Appointment Cancelled - CareHealth EHR', html);
+    } catch (error) {
+      if (winstonLogger.error) {
+        winstonLogger.error('Failed to send appointment cancelled email:', {
+          patientEmail,
+          error: error.message
+        });
+      } else {
+        console.error('Failed to send appointment cancelled email:', error);
+      }
+      throw error;
+    }
   }
 }
 
