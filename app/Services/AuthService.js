@@ -2,12 +2,12 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const authConfig = require('../../config/auth');
-const EmailWorker = require('../../worker/emailWorker');
+const EmailService = require('./EmailService');
 
 class AuthService {
   constructor(userRepository) {
     this.userRepository = userRepository;
-    this.emailWorker = new EmailWorker();
+    this.emailService = new EmailService();
   }
 
   async register(data) {
@@ -44,6 +44,12 @@ class AuthService {
 
     if (!user.isActive) {
       const error = new Error('Account is deactivated');
+      error.statusCode = 403;
+      throw error;
+    }
+
+    if (user.isSuspended) {
+      const error = new Error('Account is suspended');
       error.statusCode = 403;
       throw error;
     }
@@ -148,39 +154,22 @@ class AuthService {
 
     const resetToken = crypto.randomBytes(32).toString('hex');
     const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
-    const expiresAt = new Date(Date.now() + authConfig.resetTokenExpiryMinutes * 60 * 1000);
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
 
-    await this.userRepository.setResetToken(user._id, hashedToken, expiresAt);
+    await this.userRepository.savePasswordResetToken(user._id, hashedToken, expiresAt);
 
-    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
-
-    await this.emailWorker.sendEmail({
-      to: user.email,
-      subject: 'Password Reset Request - CareFlow EHR',
-      html: `
-        <h2>Password Reset Request</h2>
-        <p>Hello ${user.firstName},</p>
-        <p>You requested a password reset. Click the link below to reset your password:</p>
-        <p><a href="${resetUrl}">${resetUrl}</a></p>
-        <p>This link will expire in ${authConfig.resetTokenExpiryMinutes} minutes.</p>
-        <p>If you did not request this, please ignore this email.</p>
-      `,
-      text: `
-        Password Reset Request
-        Hello ${user.firstName},
-        You requested a password reset. Visit this link to reset your password:
-        ${resetUrl}
-        This link will expire in ${authConfig.resetTokenExpiryMinutes} minutes.
-        If you did not request this, please ignore this email.
-      `
-    });
+    try {
+      await this.emailService.sendPasswordResetEmail(user.email, resetToken);
+    } catch (error) {
+      console.error('Failed to send password reset email:', error);
+    }
 
     return true;
   }
 
   async resetPassword(resetToken, newPassword) {
     const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
-    const user = await this.userRepository.findByResetToken(hashedToken);
+    const user = await this.userRepository.findByPasswordResetToken(hashedToken);
 
     if (!user) {
       const error = new Error('Invalid or expired reset token');
@@ -189,8 +178,7 @@ class AuthService {
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await this.userRepository.update(user._id, { password: hashedPassword });
-    await this.userRepository.clearResetToken(user._id);
+    await this.userRepository.updatePasswordById(user._id, hashedPassword);
 
     return true;
   }

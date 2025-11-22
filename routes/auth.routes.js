@@ -10,7 +10,9 @@ router.post('/login', controller.login.bind(controller));
 router.post('/refresh', controller.refresh.bind(controller));
 router.post('/logout', AuthMiddleware.verifyAuth, controller.logout.bind(controller));
 router.post('/change-password', AuthMiddleware.verifyAuth, controller.changePassword.bind(controller));
+router.post('/request-password-reset', controller.requestPasswordReset.bind(controller));
 router.post('/request-reset', controller.requestPasswordReset.bind(controller));
+router.post('/reset-password', controller.resetPassword.bind(controller));
 router.post('/reset', controller.resetPassword.bind(controller));
 
 module.exports = router;

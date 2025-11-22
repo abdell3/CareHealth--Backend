@@ -26,7 +26,7 @@ class UserRepository {
 
     const [items, total] = await Promise.all([
       User.find(filter)
-        .select('-password -refreshToken -resetToken')
+        .select('-password -refreshToken -resetToken -passwordResetToken')
         .populate('role')
         .skip(skip)
         .limit(limit)
@@ -50,7 +50,7 @@ class UserRepository {
   }
 
   async findById(id) {
-    return await User.findById(id).select('-password -refreshToken -resetToken').populate('role');
+    return await User.findById(id).select('-password -refreshToken -resetToken -passwordResetToken').populate('role');
   }
 
   async findByEmail(email) {
@@ -71,7 +71,7 @@ class UserRepository {
       id,
       { $set: data },
       { new: true, runValidators: true }
-    ).select('-password -refreshToken -resetToken').populate('role');
+    ).select('-password -refreshToken -resetToken -passwordResetToken').populate('role');
   }
 
   async delete(id) {
@@ -127,6 +127,78 @@ class UserRepository {
     );
   }
 
+  async savePasswordResetToken(userId, token, expires) {
+    return await User.findByIdAndUpdate(
+      userId,
+      {
+        $set: {
+          passwordResetToken: token,
+          passwordResetExpires: expires
+        }
+      },
+      { new: true, runValidators: true }
+    );
+  }
+
+  async updatePasswordById(userId, hashedPassword) {
+    return await User.findByIdAndUpdate(
+      userId,
+      {
+        $set: { password: hashedPassword },
+        $unset: {
+          passwordResetToken: '',
+          passwordResetExpires: ''
+        }
+      },
+      { new: true, runValidators: true }
+    );
+  }
+
+  async findByPasswordResetToken(token) {
+    return await User.findOne({
+      passwordResetToken: token,
+      passwordResetExpires: { $gt: Date.now() }
+    }).populate('role');
+  }
+
+  async suspendUser(id, adminId) {
+    return await User.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          isSuspended: true,
+          isActive: false,
+          suspendedAt: new Date(),
+          suspendedBy: adminId
+        }
+      },
+      { new: true, runValidators: true }
+    ).select('-password -refreshToken -resetToken -passwordResetToken').populate('role');
+  }
+
+  async activateUser(id, adminId) {
+    return await User.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          isSuspended: false,
+          isActive: true,
+          suspendedAt: null,
+          suspendedBy: null
+        }
+      },
+      { new: true, runValidators: true }
+    ).select('-password -refreshToken -resetToken -passwordResetToken').populate('role');
+  }
+
+  async updateRole(id, roleId) {
+    return await User.findByIdAndUpdate(
+      id,
+      { $set: { role: roleId } },
+      { new: true, runValidators: true }
+    ).select('-password -refreshToken -resetToken -passwordResetToken').populate('role');
+  }
+
   async searchUsers(search, pagination = {}) {
     const {
       page = 1,
@@ -151,7 +223,7 @@ class UserRepository {
 
     const [items, total] = await Promise.all([
       User.find(filter)
-        .select('-password -refreshToken -resetToken')
+        .select('-password -refreshToken -resetToken -passwordResetToken')
         .populate('role')
         .skip(skip)
         .limit(limit)
@@ -174,29 +246,6 @@ class UserRepository {
     };
   }
 
-  async suspendUser(id) {
-    return await User.findByIdAndUpdate(
-      id,
-      { $set: { isActive: false } },
-      { new: true, runValidators: true }
-    ).select('-password -refreshToken -resetToken').populate('role');
-  }
-
-  async reactivateUser(id) {
-    return await User.findByIdAndUpdate(
-      id,
-      { $set: { isActive: true } },
-      { new: true, runValidators: true }
-    ).select('-password -refreshToken -resetToken').populate('role');
-  }
-
-  async changeRole(id, roleId) {
-    return await User.findByIdAndUpdate(
-      id,
-      { $set: { role: roleId } },
-      { new: true, runValidators: true }
-    ).select('-password -refreshToken -resetToken').populate('role');
-  }
 }
 
 module.exports = UserRepository;

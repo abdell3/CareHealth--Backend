@@ -31,6 +31,10 @@ const changeRoleSchema = Joi.object({
   role: Joi.string().hex().length(24).required()
 });
 
+const updateRoleSchema = Joi.object({
+  role: Joi.string().valid('admin', 'doctor', 'nurse', 'receptionist', 'patient').required().lowercase()
+});
+
 const suspendUserSchema = Joi.object({});
 
 const reactivateUserSchema = Joi.object({});
@@ -40,6 +44,7 @@ module.exports = {
   updateUserSchema,
   queryUsersSchema,
   changeRoleSchema,
+  updateRoleSchema,
   suspendUserSchema,
   reactivateUserSchema
 };
