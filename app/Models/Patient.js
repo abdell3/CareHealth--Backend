@@ -12,97 +12,64 @@ const patientSchema = new Schema({
     required: true,
     trim: true
   },
-  middleName: {
-    type: String,
-    trim: true
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-    trim: true,
-    match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email address']
-  },
-  phone: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true
-  },
-  gender: {
-    type: String,
-    required: true,
-    enum: ['male', 'female'],
-    lowercase: true
-  },
   dateOfBirth: {
     type: Date,
     required: true
   },
+  gender: {
+    type: String,
+    required: true,
+    enum: ['male', 'female', 'other'],
+    lowercase: true
+  },
+  phone: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  email: {
+    type: String,
+    unique: true,
+    sparse: true,
+    lowercase: true,
+    trim: true,
+    match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email address']
+  },
   address: {
-    line1: {
-      type: String,
-      trim: true
-    },
-    line2: {
-      type: String,
-      trim: true
-    },
-    city: {
-      type: String,
-      trim: true
-    },
-    state: {
-      type: String,
-      trim: true
-    },
-    postalCode: {
-      type: String,
-      trim: true
-    },
-    country: {
-      type: String,
-      trim: true
-    }
+    type: String,
+    trim: true
   },
-  emergencyContact: {
-    name: {
-      type: String,
-      trim: true
-    },
-    phone: {
-      type: String,
-      trim: true
-    },
-    relation: {
-      type: String,
-      trim: true
-    }
+  city: {
+    type: String,
+    trim: true
   },
-  medicalData: {
-    allergies: [{
-      type: String,
-      trim: true
-    }],
-    medications: [{
-      type: String,
-      trim: true
-    }],
-    chronicConditions: [{
-      type: String,
-      trim: true
-    }],
-    bloodType: {
-      type: String,
-      trim: true,
-      uppercase: true,
-      enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', '']
-    },
-    notes: {
-      type: String,
-      trim: true
-    }
+  insuranceProvider: {
+    type: String,
+    trim: true
+  },
+  insuranceNumber: {
+    type: String,
+    trim: true
+  },
+  emergencyContactName: {
+    type: String,
+    trim: true
+  },
+  emergencyContactPhone: {
+    type: String,
+    trim: true
+  },
+  allergies: {
+    type: [String],
+    default: []
+  },
+  medicalHistory: {
+    type: [String],
+    default: []
+  },
+  notes: {
+    type: String,
+    trim: true
   },
   createdBy: {
     type: Schema.Types.ObjectId,
@@ -111,6 +78,10 @@ const patientSchema = new Schema({
   updatedBy: {
     type: Schema.Types.ObjectId,
     ref: 'User'
+  },
+  isDeleted: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true,
@@ -118,9 +89,7 @@ const patientSchema = new Schema({
   strict: true
 });
 
-patientSchema.index({ firstName: 1, lastName: 1 });
-patientSchema.index({ email: 1 });
-patientSchema.index({ phone: 1 });
-patientSchema.index({ firstName: 1, lastName: 1, email: 1, phone: 1 });
+patientSchema.index({ firstName: 'text', lastName: 'text', phone: 'text', email: 'text' });
+patientSchema.index({ isDeleted: 1 });
 
 module.exports = mongoose.model('Patient', patientSchema);

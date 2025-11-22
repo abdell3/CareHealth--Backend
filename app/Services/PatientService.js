@@ -4,38 +4,39 @@ class PatientService {
   }
 
   async createPatient(payload, userId) {
-    const existingByEmail = await this.patientRepository.findByEmail(payload.email);
-    if (existingByEmail) {
-      const error = new Error('Patient with this email already exists');
-      error.statusCode = 409;
-      throw error;
-    }
-
-    const existingByPhone = await this.patientRepository.findByPhone(payload.phone);
-    if (existingByPhone) {
-      const error = new Error('Patient with this phone number already exists');
-      error.statusCode = 409;
-      throw error;
+    if (payload.email) {
+      const existingByEmail = await this.patientRepository.existsByEmail(payload.email);
+      if (existingByEmail) {
+        const error = new Error('Patient with this email already exists');
+        error.statusCode = 409;
+        throw error;
+      }
     }
 
     const patientData = {
       ...payload,
-      email: payload.email.toLowerCase().trim(),
+      email: payload.email ? payload.email.toLowerCase().trim() : undefined,
       phone: payload.phone.trim(),
-      createdBy: userId
+      createdBy: userId,
+      isDeleted: false
     };
 
     const patient = await this.patientRepository.create(patientData);
-    return patient;
+    const patientObj = patient.toObject();
+    delete patientObj.isDeleted;
+    return patientObj;
   }
 
   async getPatients(query) {
-    const { page = 1, limit = 10, search = '' } = query;
+    const { page = 1, limit = 10, search = '', gender, city, isDeleted } = query;
 
     const result = await this.patientRepository.findAll({
       page: parseInt(page),
       limit: parseInt(limit),
-      search: search.trim()
+      search: search.trim(),
+      gender,
+      city,
+      isDeleted: isDeleted !== undefined ? isDeleted === 'true' || isDeleted === true : undefined
     });
 
     return result;
@@ -43,12 +44,14 @@ class PatientService {
 
   async getPatientById(id) {
     const patient = await this.patientRepository.findById(id);
-    if (!patient) {
+    if (!patient || patient.isDeleted) {
       const error = new Error('Patient not found');
       error.statusCode = 404;
       throw error;
     }
-    return patient;
+    const patientObj = patient.toObject();
+    delete patientObj.isDeleted;
+    return patientObj;
   }
 
   async updatePatient(id, payload, userId) {
@@ -59,24 +62,20 @@ class PatientService {
       throw error;
     }
 
+    if (patient.isDeleted) {
+      const error = new Error('Cannot update a deleted patient');
+      error.statusCode = 400;
+      throw error;
+    }
+
     if (payload.email && payload.email !== patient.email) {
-      const existingByEmail = await this.patientRepository.findByEmail(payload.email);
+      const existingByEmail = await this.patientRepository.existsByEmail(payload.email);
       if (existingByEmail) {
         const error = new Error('Patient with this email already exists');
         error.statusCode = 409;
         throw error;
       }
       payload.email = payload.email.toLowerCase().trim();
-    }
-
-    if (payload.phone && payload.phone !== patient.phone) {
-      const existingByPhone = await this.patientRepository.findByPhone(payload.phone);
-      if (existingByPhone) {
-        const error = new Error('Patient with this phone number already exists');
-        error.statusCode = 409;
-        throw error;
-      }
-      payload.phone = payload.phone.trim();
     }
 
     payload.updatedBy = userId;
@@ -88,10 +87,12 @@ class PatientService {
       throw error;
     }
 
-    return updatedPatient;
+    const patientObj = updatedPatient.toObject();
+    delete patientObj.isDeleted;
+    return patientObj;
   }
 
-  async deletePatient(id) {
+  async deletePatient(id, userId) {
     const patient = await this.patientRepository.findById(id);
     if (!patient) {
       const error = new Error('Patient not found');
@@ -99,7 +100,13 @@ class PatientService {
       throw error;
     }
 
-    await this.patientRepository.delete(id);
+    if (patient.isDeleted) {
+      const error = new Error('Patient already deleted');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    await this.patientRepository.delete(id, userId);
     return true;
   }
 }

@@ -61,7 +61,8 @@ class PatientController {
 
       return res.status(200).json({
         success: true,
-        data: result
+        data: result.items,
+        meta: result.pagination
       });
     } catch (err) {
       return res.status(500).json({
@@ -132,7 +133,7 @@ class PatientController {
         data: { patient }
       });
     } catch (err) {
-      if (err.statusCode === 404 || err.statusCode === 409) {
+      if (err.statusCode === 404 || err.statusCode === 409 || err.statusCode === 400) {
         return res.status(err.statusCode).json({
           success: false,
           message: err.message
@@ -157,12 +158,12 @@ class PatientController {
         });
       }
 
-      await this.patientService.deletePatient(req.params.id);
+      await this.patientService.deletePatient(req.params.id, req.user.id);
 
       return res.status(204).send();
     } catch (err) {
-      if (err.statusCode === 404) {
-        return res.status(404).json({
+      if (err.statusCode === 404 || err.statusCode === 400) {
+        return res.status(err.statusCode).json({
           success: false,
           message: err.message
         });
