@@ -6,7 +6,14 @@ const roleSchema = new Schema({
     type: String,
     required: true,
     unique: true,
-    enum: ['admin', 'doctor', 'nurse', 'receptionist', 'pharmacist', 'lab_technician'],
+    enum: [
+      'admin', 
+      'doctor', 
+      'nurse', 
+      'receptionist', 
+      'pharmacist', 
+      'lab_technician'
+    ],
     lowercase: true,
     trim: true
   }
