@@ -1,5 +1,6 @@
 const PharmacyService = require('../../Services/PharmacyService');
 const PharmacyRepository = require('../../Repositories/PharmacyRepository');
+const LoggerService = require('../../Services/LoggerService');
 const {
   createPharmacySchema,
   updatePharmacySchema,
@@ -12,6 +13,7 @@ class PharmacyController {
   constructor() {
     const pharmacyRepository = new PharmacyRepository();
     this.pharmacyService = new PharmacyService(pharmacyRepository);
+    this.loggerService = new LoggerService();
   }
 
   async createPharmacy(req, res) {
@@ -201,6 +203,11 @@ class PharmacyController {
         value.prescriptionId,
         req.params.id
       );
+
+      this.loggerService.logAudit('ASSIGN_PRESCRIPTION_TO_PHARMACY', req.user.id, 'Prescription', {
+        prescriptionId: prescription._id,
+        pharmacyId: req.params.id
+      });
 
       return res.status(200).json({
         success: true,

@@ -1,5 +1,6 @@
 const PatientService = require('../../Services/PatientService');
 const PatientRepository = require('../../Repositories/PatientRepository');
+const LoggerService = require('../../Services/LoggerService');
 const {
   createPatientSchema,
   updatePatientSchema,
@@ -11,6 +12,7 @@ class PatientController {
   constructor() {
     const patientRepository = new PatientRepository();
     this.patientService = new PatientService(patientRepository);
+    this.loggerService = new LoggerService();
   }
 
   async createPatient(req, res) {
@@ -25,6 +27,11 @@ class PatientController {
       }
 
       const patient = await this.patientService.createPatient(value, req.user.id);
+
+      this.loggerService.logAudit('CREATE_PATIENT', req.user.id, 'Patient', {
+        patientId: patient._id,
+        email: patient.email
+      });
 
       return res.status(201).json({
         success: true,
@@ -127,6 +134,11 @@ class PatientController {
 
       const patient = await this.patientService.updatePatient(req.params.id, value, req.user.id);
 
+      this.loggerService.logAudit('UPDATE_PATIENT', req.user.id, 'Patient', {
+        patientId: patient._id,
+        changes: Object.keys(value)
+      });
+
       return res.status(200).json({
         success: true,
         message: 'Patient updated successfully',
@@ -159,6 +171,10 @@ class PatientController {
       }
 
       await this.patientService.deletePatient(req.params.id, req.user.id);
+
+      this.loggerService.logAudit('DELETE_PATIENT', req.user.id, 'Patient', {
+        patientId: req.params.id
+      });
 
       return res.status(204).send();
     } catch (err) {

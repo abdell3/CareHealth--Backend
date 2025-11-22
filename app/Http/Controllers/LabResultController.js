@@ -1,5 +1,6 @@
 const LabResultService = require('../../Services/LabResultService');
 const LabResultRepository = require('../../Repositories/LabResultRepository');
+const LoggerService = require('../../Services/LoggerService');
 const {
   uploadLabResultSchema,
   updateLabResultSchema,
@@ -12,6 +13,7 @@ class LabResultController {
   constructor() {
     const labResultRepository = new LabResultRepository();
     this.labResultService = new LabResultService(labResultRepository);
+    this.loggerService = new LoggerService();
   }
 
   async uploadResult(req, res) {
@@ -26,6 +28,12 @@ class LabResultController {
       }
 
       const labResult = await this.labResultService.uploadResult(value, req.user.id);
+
+      this.loggerService.logAudit('UPLOAD_LAB_RESULT', req.user.id, 'LabResult', {
+        labResultId: labResult._id,
+        labOrderId: labResult.labOrderId,
+        fileUrl: labResult.fileUrl
+      });
 
       return res.status(201).json({
         success: true,
@@ -150,6 +158,11 @@ class LabResultController {
       }
 
       const labResult = await this.labResultService.validateResult(req.params.id, req.user.id);
+
+      this.loggerService.logAudit('VALIDATE_LAB_RESULT', req.user.id, 'LabResult', {
+        labResultId: labResult._id,
+        labOrderId: labResult.labOrderId
+      });
 
       return res.status(200).json({
         success: true,
