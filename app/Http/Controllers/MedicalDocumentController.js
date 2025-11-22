@@ -1,5 +1,6 @@
 const MedicalDocumentService = require('../../Services/MedicalDocumentService');
 const MedicalDocumentRepository = require('../../Repositories/MedicalDocumentRepository');
+const LoggerService = require('../../Services/LoggerService');
 const multer = require('multer');
 const {
   uploadDocumentSchema,
@@ -18,6 +19,7 @@ class MedicalDocumentController {
   constructor() {
     const medicalDocumentRepository = new MedicalDocumentRepository();
     this.medicalDocumentService = new MedicalDocumentService(medicalDocumentRepository);
+    this.loggerService = new LoggerService();
   }
 
   uploadMiddleware() {
@@ -67,6 +69,14 @@ class MedicalDocumentController {
         req.file.buffer,
         req.user.id
       );
+
+      this.loggerService.logAudit('UPLOAD_DOCUMENT', req.user.id, 'MedicalDocument', {
+        documentId: document._id,
+        patientId: document.patientId,
+        fileName: document.fileName,
+        fileType: document.fileType,
+        category: document.category
+      });
 
       return res.status(201).json({
         success: true,

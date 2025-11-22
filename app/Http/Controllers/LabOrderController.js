@@ -1,5 +1,6 @@
 const LabOrderService = require('../../Services/LabOrderService');
 const LabOrderRepository = require('../../Repositories/LabOrderRepository');
+const LoggerService = require('../../Services/LoggerService');
 const {
   createLabOrderSchema,
   updateLabOrderSchema,
@@ -12,6 +13,7 @@ class LabOrderController {
   constructor() {
     const labOrderRepository = new LabOrderRepository();
     this.labOrderService = new LabOrderService(labOrderRepository);
+    this.loggerService = new LoggerService();
   }
 
   async createOrder(req, res) {

@@ -1,0 +1,9 @@
+{
+  "require": [],
+  "timeout": 20000,
+  "recursive": true,
+  "exit": true,
+  "colors": true,
+  "reporter": "spec"
+}
+

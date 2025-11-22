@@ -1,5 +1,6 @@
 const PrescriptionService = require('../../Services/PrescriptionService');
 const PrescriptionRepository = require('../../Repositories/PrescriptionRepository');
+const LoggerService = require('../../Services/LoggerService');
 const {
   createPrescriptionSchema,
   updatePrescriptionSchema,
@@ -13,6 +14,7 @@ class PrescriptionController {
   constructor() {
     const prescriptionRepository = new PrescriptionRepository();
     this.prescriptionService = new PrescriptionService(prescriptionRepository);
+    this.loggerService = new LoggerService();
   }
 
   async createPrescription(req, res) {
@@ -27,6 +29,12 @@ class PrescriptionController {
       }
 
       const prescription = await this.prescriptionService.createPrescription(value, req.user.id);
+
+      this.loggerService.logAudit('CREATE_PRESCRIPTION', req.user.id, 'Prescription', {
+        prescriptionId: prescription._id,
+        patientId: prescription.patientId,
+        doctorId: prescription.doctorId
+      });
 
       return res.status(201).json({
         success: true,
@@ -204,6 +212,11 @@ class PrescriptionController {
 
       const prescription = await this.prescriptionService.assignPharmacy(req.params.id, value.pharmacyId);
 
+      this.loggerService.logAudit('ASSIGN_PHARMACY_TO_PRESCRIPTION', req.user.id, 'Prescription', {
+        prescriptionId: prescription._id,
+        pharmacyId: value.pharmacyId
+      });
+
       return res.status(200).json({
         success: true,
         message: 'Pharmacy assigned to prescription successfully',
@@ -348,6 +361,11 @@ class PrescriptionController {
         req.user.id,
         value.notes
       );
+
+      this.loggerService.logAudit('DISPENSE_PRESCRIPTION', req.user.id, 'Prescription', {
+        prescriptionId: prescription._id,
+        pharmacyId: prescription.pharmacyId
+      });
 
       return res.status(200).json({
         success: true,
