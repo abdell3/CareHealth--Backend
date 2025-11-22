@@ -201,7 +201,7 @@ class AuthController {
         });
       }
 
-      await this.authService.resetPassword(value.resetToken, value.newPassword);
+      await this.authService.resetPassword(value.token, value.password);
 
       return res.status(200).json({
         success: true,

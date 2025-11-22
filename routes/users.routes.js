@@ -49,7 +49,10 @@ router.post('/', AuthMiddleware.verifyAuth, AuthMiddleware.requireAdmin(), contr
 router.get('/', AuthMiddleware.verifyAuth, AuthMiddleware.requireAdmin(), controller.getUsers.bind(controller));
 router.get('/:id', AuthMiddleware.verifyAuth, getAllowedRolesForView, controller.getUser.bind(controller));
 router.put('/:id', AuthMiddleware.verifyAuth, controller.updateUser.bind(controller));
+router.put('/:id/role', AuthMiddleware.verifyAuth, AuthMiddleware.requireAdmin(), controller.updateRole.bind(controller));
 router.patch('/:id/role', AuthMiddleware.verifyAuth, AuthMiddleware.requireAdmin(), controller.changeRole.bind(controller));
+router.put('/:id/suspend', AuthMiddleware.verifyAuth, AuthMiddleware.requireAdmin(), controller.suspendUser.bind(controller));
+router.put('/:id/activate', AuthMiddleware.verifyAuth, AuthMiddleware.requireAdmin(), controller.activateUser.bind(controller));
 router.patch('/:id/suspend', AuthMiddleware.verifyAuth, AuthMiddleware.requireAdmin(), controller.suspendUser.bind(controller));
 router.patch('/:id/reactivate', AuthMiddleware.verifyAuth, AuthMiddleware.requireAdmin(), controller.reactivateUser.bind(controller));
 router.delete('/:id', AuthMiddleware.verifyAuth, AuthMiddleware.requireAdmin(), controller.deleteUser.bind(controller));

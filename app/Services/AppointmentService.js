@@ -2,12 +2,14 @@ const AppointmentRepository = require('../Repositories/AppointmentRepository');
 const PatientRepository = require('../Repositories/PatientRepository');
 const UserRepository = require('../Repositories/UserRepository');
 const Role = require('../Models/Role');
+const EmailService = require('./EmailService');
 
 class AppointmentService {
   constructor(appointmentRepository) {
     this.appointmentRepository = appointmentRepository;
     this.patientRepository = new PatientRepository();
     this.userRepository = new UserRepository();
+    this.emailService = new EmailService();
     this.SLOT_DURATION_MINUTES = 15;
     this.WORKING_HOURS_START = 8;
     this.WORKING_HOURS_END = 18;
@@ -76,6 +78,21 @@ class AppointmentService {
     };
 
     const appointment = await this.appointmentRepository.create(appointmentData);
+    
+    try {
+      const patient = await this.patientRepository.findById(payload.patientId);
+      if (patient && patient.email) {
+        await this.emailService.sendAppointmentConfirmationEmail(patient.email, {
+          startAt: appointment.startAt,
+          endAt: appointment.endAt,
+          location: appointment.location,
+          reason: appointment.reason
+        });
+      }
+    } catch (error) {
+      console.error('Failed to send appointment confirmation email:', error);
+    }
+
     return appointment;
   }
 
@@ -177,6 +194,22 @@ class AppointmentService {
       }
 
       updateData.status = newStatus;
+
+      if (newStatus === 'cancelled') {
+        try {
+          const patient = await this.patientRepository.findById(appointment.patientId);
+          if (patient && patient.email) {
+            await this.emailService.sendAppointmentCancelledEmail(patient.email, {
+              startAt: appointment.startAt,
+              endAt: appointment.endAt,
+              location: appointment.location,
+              reason: appointment.reason
+            });
+          }
+        } catch (error) {
+          console.error('Failed to send appointment cancellation email:', error);
+        }
+      }
     }
 
     if (updateData.startAt) {

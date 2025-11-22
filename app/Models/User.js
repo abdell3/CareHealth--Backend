@@ -48,6 +48,24 @@ const userSchema = new Schema({
   },
   resetTokenExpires: {
     type: Date
+  },
+  passwordResetToken: {
+    type: String,
+    trim: true
+  },
+  passwordResetExpires: {
+    type: Date
+  },
+  isSuspended: {
+    type: Boolean,
+    default: false
+  },
+  suspendedAt: {
+    type: Date
+  },
+  suspendedBy: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
   }
 }, {
   timestamps: true,

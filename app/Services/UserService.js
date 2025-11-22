@@ -1,9 +1,13 @@
 const bcrypt = require('bcrypt');
 const Role = require('../Models/Role');
+const EmailService = require('./EmailService');
+
+const ALLOWED_ROLES = ['admin', 'doctor', 'nurse', 'receptionist', 'patient'];
 
 class UserService {
   constructor(userRepository) {
     this.userRepository = userRepository;
+    this.emailService = new EmailService();
   }
 
   async createUser(data) {
@@ -33,6 +37,7 @@ class UserService {
     delete userObject.password;
     delete userObject.refreshToken;
     delete userObject.resetToken;
+    delete userObject.passwordResetToken;
 
     return userObject;
   }
@@ -95,7 +100,13 @@ class UserService {
     return updatedUser;
   }
 
-  async changeRole(id, newRoleId) {
+  async updateUserRole(id, roleName, adminId) {
+    if (!ALLOWED_ROLES.includes(roleName.toLowerCase())) {
+      const error = new Error('Invalid role');
+      error.statusCode = 400;
+      throw error;
+    }
+
     const user = await this.userRepository.findById(id);
     if (!user) {
       const error = new Error('User not found');
@@ -103,14 +114,14 @@ class UserService {
       throw error;
     }
 
-    const roleExists = await Role.findById(newRoleId);
-    if (!roleExists) {
-      const error = new Error('Invalid role');
-      error.statusCode = 400;
+    const role = await Role.findOne({ name: roleName.toLowerCase() });
+    if (!role) {
+      const error = new Error('Role not found');
+      error.statusCode = 404;
       throw error;
     }
 
-    const updatedUser = await this.userRepository.changeRole(id, newRoleId);
+    const updatedUser = await this.userRepository.updateRole(id, role._id);
     if (!updatedUser) {
       const error = new Error('User not found');
       error.statusCode = 404;
@@ -120,7 +131,7 @@ class UserService {
     return updatedUser;
   }
 
-  async suspendUser(id) {
+  async suspendUser(id, adminId) {
     const user = await this.userRepository.findById(id);
     if (!user) {
       const error = new Error('User not found');
@@ -128,23 +139,35 @@ class UserService {
       throw error;
     }
 
-    if (!user.isActive) {
+    if (user._id.toString() === adminId) {
+      const error = new Error('You cannot suspend yourself');
+      error.statusCode = 403;
+      throw error;
+    }
+
+    if (user.isSuspended) {
       const error = new Error('User is already suspended');
       error.statusCode = 400;
       throw error;
     }
 
-    const suspendedUser = await this.userRepository.suspendUser(id);
+    const suspendedUser = await this.userRepository.suspendUser(id, adminId);
     if (!suspendedUser) {
       const error = new Error('User not found');
       error.statusCode = 404;
       throw error;
     }
 
+    try {
+      await this.emailService.sendAccountSuspendedEmail(user.email, user.firstName);
+    } catch (error) {
+      console.error('Failed to send suspension email:', error);
+    }
+
     return suspendedUser;
   }
 
-  async reactivateUser(id) {
+  async activateUser(id, adminId) {
     const user = await this.userRepository.findById(id);
     if (!user) {
       const error = new Error('User not found');
@@ -152,20 +175,26 @@ class UserService {
       throw error;
     }
 
-    if (user.isActive) {
+    if (!user.isSuspended && user.isActive) {
       const error = new Error('User is already active');
       error.statusCode = 400;
       throw error;
     }
 
-    const reactivatedUser = await this.userRepository.reactivateUser(id);
-    if (!reactivatedUser) {
+    const activatedUser = await this.userRepository.activateUser(id, adminId);
+    if (!activatedUser) {
       const error = new Error('User not found');
       error.statusCode = 404;
       throw error;
     }
 
-    return reactivatedUser;
+    try {
+      await this.emailService.sendAccountActivatedEmail(user.email, user.firstName);
+    } catch (error) {
+      console.error('Failed to send activation email:', error);
+    }
+
+    return activatedUser;
   }
 
   async deleteUser(id) {

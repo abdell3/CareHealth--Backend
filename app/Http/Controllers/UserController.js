@@ -5,6 +5,7 @@ const {
   updateUserSchema,
   queryUsersSchema,
   changeRoleSchema,
+  updateRoleSchema,
   suspendUserSchema,
   reactivateUserSchema
 } = require('../Validators/user.validators');
@@ -193,6 +194,48 @@ class UserController {
     }
   }
 
+  async updateRole(req, res) {
+    try {
+      const { id } = req.params;
+      const { error, value } = updateRoleSchema.validate(req.body);
+
+      if (error) {
+        return res.status(400).json({
+          success: false,
+          message: 'Validation error',
+          errors: error.details.map(detail => detail.message)
+        });
+      }
+
+      if (req.user.id === id) {
+        return res.status(403).json({
+          success: false,
+          message: 'You cannot change your own role'
+        });
+      }
+
+      const user = await this.userService.updateUserRole(id, value.role, req.user.id);
+
+      return res.status(200).json({
+        success: true,
+        message: 'User role updated successfully',
+        data: { user }
+      });
+    } catch (err) {
+      if (err.statusCode === 404 || err.statusCode === 400 || err.statusCode === 403) {
+        return res.status(err.statusCode).json({
+          success: false,
+          message: err.message
+        });
+      }
+      return res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+        error: process.env.NODE_ENV === 'development' ? err.message : undefined
+      });
+    }
+  }
+
   async suspendUser(req, res) {
     try {
       const { id } = req.params;
@@ -206,18 +249,46 @@ class UserController {
         });
       }
 
-      if (req.user.id === id) {
-        return res.status(403).json({
-          success: false,
-          message: 'You cannot suspend yourself'
-        });
-      }
-
-      const user = await this.userService.suspendUser(id);
+      const user = await this.userService.suspendUser(id, req.user.id);
 
       return res.status(200).json({
         success: true,
         message: 'User suspended successfully',
+        data: { user }
+      });
+    } catch (err) {
+      if (err.statusCode === 404 || err.statusCode === 400 || err.statusCode === 403) {
+        return res.status(err.statusCode).json({
+          success: false,
+          message: err.message
+        });
+      }
+      return res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+        error: process.env.NODE_ENV === 'development' ? err.message : undefined
+      });
+    }
+  }
+
+  async activateUser(req, res) {
+    try {
+      const { id } = req.params;
+      const { error } = reactivateUserSchema.validate(req.body);
+
+      if (error) {
+        return res.status(400).json({
+          success: false,
+          message: 'Validation error',
+          errors: error.details.map(detail => detail.message)
+        });
+      }
+
+      const user = await this.userService.activateUser(id, req.user.id);
+
+      return res.status(200).json({
+        success: true,
+        message: 'User activated successfully',
         data: { user }
       });
     } catch (err) {
@@ -236,38 +307,7 @@ class UserController {
   }
 
   async reactivateUser(req, res) {
-    try {
-      const { id } = req.params;
-      const { error } = reactivateUserSchema.validate(req.body);
-
-      if (error) {
-        return res.status(400).json({
-          success: false,
-          message: 'Validation error',
-          errors: error.details.map(detail => detail.message)
-        });
-      }
-
-      const user = await this.userService.reactivateUser(id);
-
-      return res.status(200).json({
-        success: true,
-        message: 'User reactivated successfully',
-        data: { user }
-      });
-    } catch (err) {
-      if (err.statusCode === 404 || err.statusCode === 400) {
-        return res.status(err.statusCode).json({
-          success: false,
-          message: err.message
-        });
-      }
-      return res.status(500).json({
-        success: false,
-        message: 'Internal server error',
-        error: process.env.NODE_ENV === 'development' ? err.message : undefined
-      });
-    }
+    return this.activateUser(req, res);
   }
 
   async deleteUser(req, res) {

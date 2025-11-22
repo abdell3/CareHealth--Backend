@@ -30,9 +30,9 @@ const requestPasswordResetSchema = Joi.object({
 });
 
 const resetPasswordSchema = Joi.object({
-  resetToken: Joi.string().required().trim(),
-  newPassword: Joi.string().required().min(8).pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-    .message('New password must contain at least one uppercase letter, one lowercase letter, and one number')
+  token: Joi.string().required().trim(),
+  password: Joi.string().required().min(8).pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
+    .message('Password must contain at least one uppercase letter, one lowercase letter, and one number')
 });
 
 module.exports = {
