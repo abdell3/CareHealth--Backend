@@ -3,11 +3,13 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const authConfig = require('../../config/auth');
 const EmailService = require('./EmailService');
+const RefreshTokenService = require('./RefreshTokenService');
 
 class AuthService {
   constructor(userRepository) {
     this.userRepository = userRepository;
     this.emailService = new EmailService();
+    this.refreshTokenService = new RefreshTokenService();
   }
 
   async register(data) {
@@ -62,9 +64,7 @@ class AuthService {
     }
 
     const accessToken = this.generateAccessToken(user);
-    const refreshToken = this.generateRefreshToken(user);
-
-    await this.userRepository.storeRefreshToken(user._id, refreshToken);
+    const refreshToken = await this.refreshTokenService.createRefreshToken(user._id.toString());
 
     const userObject = user.toObject();
     delete userObject.password;
@@ -78,28 +78,29 @@ class AuthService {
     };
   }
 
-  async refreshToken(refreshToken) {
+  async refreshToken(token) {
     try {
-      const decoded = jwt.verify(refreshToken, authConfig.refreshTokenSecret);
-      const user = await this.userRepository.findById(decoded.userId);
+      const decoded = jwt.verify(token, authConfig.refreshTokenSecret);
+      const userId = decoded.userId;
 
-      if (!user || !user.isActive) {
+      const isValid = await this.refreshTokenService.verifyRefreshToken(userId, token);
+      if (!isValid) {
+        const error = new Error('Invalid or expired refresh token');
+        error.statusCode = 401;
+        throw error;
+      }
+
+      const user = await this.userRepository.findById(userId);
+      if (!user || !user.isActive || user.isSuspended) {
         const error = new Error('Invalid refresh token');
         error.statusCode = 401;
         throw error;
       }
 
-      const storedUser = await this.userRepository.findByEmail(user.email);
-      if (!storedUser || storedUser.refreshToken !== refreshToken) {
-        const error = new Error('Refresh token mismatch');
-        error.statusCode = 401;
-        throw error;
-      }
+      const newAccessToken = this.generateAccessToken(user);
+      const newRefreshToken = await this.refreshTokenService.createRefreshToken(userId);
 
-      const newAccessToken = this.generateAccessToken(storedUser);
-      const newRefreshToken = this.generateRefreshToken(storedUser);
-
-      await this.userRepository.storeRefreshToken(storedUser._id, newRefreshToken);
+      await this.refreshTokenService.revokeRefreshToken(userId, token);
 
       return {
         accessToken: newAccessToken,
@@ -114,8 +115,12 @@ class AuthService {
     }
   }
 
-  async logout(userId) {
-    await this.userRepository.removeRefreshToken(userId);
+  async logout(userId, token = null) {
+    if (token) {
+      await this.refreshTokenService.revokeRefreshToken(userId, token);
+    } else {
+      await this.refreshTokenService.revokeAllUserTokens(userId);
+    }
     return true;
   }
 

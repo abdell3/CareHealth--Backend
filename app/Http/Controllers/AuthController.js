@@ -116,7 +116,8 @@ class AuthController {
 
   async logout(req, res) {
     try {
-      await this.authService.logout(req.user.id);
+      const refreshToken = req.body.refreshToken || null;
+      await this.authService.logout(req.user.id, refreshToken);
 
       return res.status(204).send();
     } catch (err) {
