@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // Route registration
+router.use('/v1/health', require('./health.routes'));
 router.use('/v1/auth', require('./auth.routes'));
 router.use('/v1/users', require('./users.routes'));
 router.use('/v1/patients', require('./patients.routes'));
