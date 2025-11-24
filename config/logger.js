@@ -16,13 +16,43 @@ const logFormat = winston.format.combine(
   winston.format.json()
 );
 
+const safeStringify = (obj) => {
+  const seen = new WeakSet();
+  return JSON.stringify(obj, (key, value) => {
+    if (typeof value === 'object' && value !== null) {
+      if (seen.has(value)) {
+        return '[Circular]';
+      }
+      seen.add(value);
+      if (value instanceof Error) {
+        return {
+          message: value.message,
+          stack: value.stack,
+          name: value.name
+        };
+      }
+      if (value.constructor && value.constructor.name === 'Socket') {
+        return '[Socket]';
+      }
+      if (value.constructor && value.constructor.name === 'HTTPParser') {
+        return '[HTTPParser]';
+      }
+    }
+    return value;
+  });
+};
+
 const consoleFormat = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
   winston.format.colorize(),
   winston.format.printf(({ timestamp, level, message, ...meta }) => {
     let msg = `${timestamp} [${level}]: ${message}`;
     if (Object.keys(meta).length > 0) {
-      msg += ` ${JSON.stringify(meta)}`;
+      try {
+        msg += ` ${safeStringify(meta)}`;
+      } catch (err) {
+        msg += ` [Unable to stringify meta: ${err.message}]`;
+      }
     }
     return msg;
   })
@@ -51,8 +81,9 @@ const transports = [
   })
 ];
 
-if (process.env.NODE_ENV === 'production' && DailyRotateFile) {
+if (process.env.NODE_ENV === 'production') {
   try {
+    const DailyRotateFile = require('winston-daily-rotate-file');
     const dailyRotateFile = new DailyRotateFile({
       filename: path.join(logDir, 'application-%DATE%.log'),
       datePattern: 'YYYY-MM-DD',

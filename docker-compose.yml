@@ -23,7 +23,7 @@ services:
     image: redis:7-alpine
     container_name: careflow-redis-dev
     restart: unless-stopped
-    command: redis-server --appendonly yes
+    command: ["redis-server", "--appendonly", "yes"]
     ports:
       - "6379:6379"
     volumes:
@@ -45,6 +45,7 @@ services:
     environment:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
       MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin}
+      command: server /data --console-address ":9001"
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -54,9 +55,9 @@ services:
       - careflow-dev-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 30s
+      interval: 10s
       timeout: 5s
-      retries: 3
+      retries: 5
       start_period: 20s
 
   minio-init:

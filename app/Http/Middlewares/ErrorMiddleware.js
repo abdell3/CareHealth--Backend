@@ -4,7 +4,7 @@ const loggerService = new LoggerService();
 
 class ErrorMiddleware {
   handleError(err, req, res, next) {
-    loggerService.logError('HTTP Error', { error: err, req: req });
+    loggerService.logHTTPError(err, req);
 
     const statusCode = err.statusCode || 500;
     const message = err.message || 'Internal server error';
