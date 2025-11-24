@@ -18,11 +18,11 @@
     "nanoid": "^5.1.6",
     "nodemailer": "^7.0.10",
     "redis": "^5.10.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
     "uuid": "^13.0.0",
     "winston": "^3.18.3",
-    "winston-daily-rotate-file": "^5.0.0",
-    "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1"
+    "winston-daily-rotate-file": "^5.0.0"
   },
   "scripts": {
     "test": "mocha tests --recursive --timeout 20000",
