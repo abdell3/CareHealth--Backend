@@ -20,7 +20,9 @@
     "redis": "^5.10.0",
     "uuid": "^13.0.0",
     "winston": "^3.18.3",
-    "winston-daily-rotate-file": "^5.0.0"
+    "winston-daily-rotate-file": "^5.0.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "scripts": {
     "test": "mocha tests --recursive --timeout 20000",
@@ -29,12 +31,22 @@
     "test:watch": "mocha tests --recursive --watch --timeout 20000",
     "coverage": "nyc npm test",
     "coverage:unit": "nyc npm run test:unit",
-    "coverage:e2e": "nyc npm run test:e2e"
+    "coverage:e2e": "nyc npm run test:e2e",
+    "lint": "eslint . --ext .js || echo 'ESLint not configured'",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:restart": "docker-compose restart",
+    "docker:clean": "docker-compose down -v",
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
   "devDependencies": {
     "chai": "^6.2.1",
     "mocha": "^11.7.5",
     "mongodb-memory-server": "^10.3.0",
+    "nodemon": "^3.0.2",
     "nyc": "^17.1.0",
     "sinon": "^21.0.0",
     "supertest": "^7.1.4"

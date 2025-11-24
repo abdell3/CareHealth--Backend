@@ -1,5 +1,7 @@
 require('dotenv').config();
 const express = require('express');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./config/swagger');
 const routes = require('./routes/index');
 const { initializeRedis } = require('./config/redis');
 const LoggingMiddleware = require('./app/Http/Middlewares/LoggingMiddleware');
@@ -16,6 +18,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(LoggingMiddleware.logRequest());
+
+
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'CareFlow EHR API Documentation'
+}));
 
 app.use('/api', routes);
 
