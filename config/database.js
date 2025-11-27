@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const logger = require('./logger');
 
-const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/careflow-dev';
+const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/carehealth-dev';
 
 const initializeDatabase = async () => {
   try {

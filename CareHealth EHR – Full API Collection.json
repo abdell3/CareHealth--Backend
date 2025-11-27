@@ -1,8 +1,8 @@
 {
 	"info": {
-		"_postman_id": "careflow-ehr-api-collection",
-		"name": "CareFlow EHR – Full API Collection",
-		"description": "Complete API collection for CareFlow EHR Backend System",
+		"_postman_id": "carehealth-ehr-api-collection",
+		"name": "CareHealth EHR – Full API Collection",
+		"description": "Complete API collection for CareHealth EHR Backend System",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"variable": [
@@ -103,7 +103,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"admin@careflow.com\",\n  \"password\": \"admin123\"\n}"
+							"raw": "{\n  \"email\": \"admin@carehealth.com\",\n  \"password\": \"admin123\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/v1/auth/login",
@@ -139,7 +139,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"doctor@careflow.com\",\n  \"password\": \"doctor123\"\n}"
+							"raw": "{\n  \"email\": \"doctor@carehealth.com\",\n  \"password\": \"doctor123\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/v1/auth/login",
@@ -175,7 +175,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"nurse@careflow.com\",\n  \"password\": \"nurse123\"\n}"
+							"raw": "{\n  \"email\": \"nurse@carehealth.com\",\n  \"password\": \"nurse123\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/v1/auth/login",
@@ -211,7 +211,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"receptionist@careflow.com\",\n  \"password\": \"receptionist123\"\n}"
+							"raw": "{\n  \"email\": \"receptionist@carehealth.com\",\n  \"password\": \"receptionist123\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/v1/auth/login",
@@ -247,7 +247,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"labtech@careflow.com\",\n  \"password\": \"labtech123\"\n}"
+							"raw": "{\n  \"email\": \"labtech@carehealth.com\",\n  \"password\": \"labtech123\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/v1/auth/login",
@@ -283,7 +283,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"pharmacist@careflow.com\",\n  \"password\": \"pharmacist123\"\n}"
+							"raw": "{\n  \"email\": \"pharmacist@carehealth.com\",\n  \"password\": \"pharmacist123\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/v1/auth/login",
@@ -304,7 +304,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"newuser@careflow.com\",\n  \"password\": \"password123\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"phone\": \"+1234567890\"\n}"
+							"raw": "{\n  \"email\": \"newuser@carehealth.com\",\n  \"password\": \"password123\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"phone\": \"+1234567890\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/v1/auth/register",
@@ -392,7 +392,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"user@careflow.com\"\n}"
+							"raw": "{\n  \"email\": \"user@carehealth.com\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/v1/auth/request-password-reset",
@@ -446,7 +446,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"email\": \"newuser@careflow.com\",\n  \"password\": \"password123\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"phone\": \"+1234567890\",\n  \"roleId\": \"role-id-here\"\n}"
+									"raw": "{\n  \"email\": \"newuser@carehealth.com\",\n  \"password\": \"password123\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"phone\": \"+1234567890\",\n  \"roleId\": \"role-id-here\"\n}"
 								},
 								"url": {
 									"raw": "{{base_url}}/v1/users",

@@ -6,7 +6,7 @@ const seedDemoData = require('./seed-demoData');
 const runSeeds = async () => {
   try {
     console.log('========================================');
-    console.log('  CareFlow EHR - Database Seeding');
+    console.log('  CareHealth EHR - Database Seeding');
     console.log('========================================\n');
 
     console.log('Running seed 1/3: Admin');

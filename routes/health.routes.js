@@ -4,7 +4,7 @@ const router = express.Router();
 router.get('/', (req, res) => {
   res.status(200).json({
     success: true,
-    message: 'CareFlow EHR API is running',
+    message: 'CareHealth EHR API is running',
     timestamp: new Date().toISOString()
   });
 });

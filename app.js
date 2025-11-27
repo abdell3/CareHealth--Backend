@@ -22,7 +22,7 @@ app.use(LoggingMiddleware.logRequest());
 
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: 'CareFlow EHR API Documentation'
+  customSiteTitle: 'CareHealth EHR API Documentation'
 }));
 
 app.use('/api', routes);

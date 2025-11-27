@@ -3,12 +3,12 @@ const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerDefinition = {
   openapi: '3.1.0',
   info: {
-    title: 'CareFlow EHR API',
+    title: 'CareHealth EHR API',
     version: '1.0.0',
-    description: 'API documentation for CareFlow EHR Backend - Comprehensive Electronic Health Records Management System',
+    description: 'API documentation for CareHealth EHR Backend - Comprehensive Electronic Health Records Management System',
     contact: {
-      name: 'CareFlow EHR Team',
-      email: 'support@careflow.com'
+      name: 'CareHealth EHR Team',
+      email: 'support@carehealth.com'
     },
     license: {
       name: 'MIT',

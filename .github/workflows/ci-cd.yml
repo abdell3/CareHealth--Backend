@@ -9,7 +9,7 @@ on:
 env:
   NODE_VERSION: '18.x'
   REGISTRY: docker.io
-  IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/careflow-ehr
+  IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/carehealth-ehr
 
 jobs:
   lint:
@@ -71,7 +71,7 @@ jobs:
       - name: Create .env file
         run: |
           echo "NODE_ENV=test" >> .env
-          echo "MONGO_URI=mongodb://localhost:27017/careflow-test" >> .env
+          echo "MONGO_URI=mongodb://localhost:27017/carehealth-test" >> .env
           echo "REDIS_HOST=localhost" >> .env
           echo "REDIS_PORT=6379" >> .env
           echo "JWT_ACCESS_SECRET=test-secret-key" >> .env
@@ -149,7 +149,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     environment:
       name: production
-      url: https://api.careflow.com
+      url: https://api.carehealth.com
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

@@ -25,10 +25,10 @@ const seedDemoData = async () => {
       throw new Error('Required roles not found. Please run seed-roles-users.js first.');
     }
 
-    const doctor = await User.findOne({ email: 'doctor@careflow.com' });
-    const pharmacist = await User.findOne({ email: 'pharmacist@careflow.com' });
-    const labTech = await User.findOne({ email: 'labtech@careflow.com' });
-    const admin = await User.findOne({ email: 'admin@careflow.com' });
+    const doctor = await User.findOne({ email: 'doctor@carehealth.com' });
+    const pharmacist = await User.findOne({ email: 'pharmacist@carehealth.com' });
+    const labTech = await User.findOne({ email: 'labtech@carehealth.com' });
+    const admin = await User.findOne({ email: 'admin@carehealth.com' });
 
     if (!doctor || !pharmacist || !labTech || !admin) {
       throw new Error('Required users not found. Please run seed-roles-users.js first.');

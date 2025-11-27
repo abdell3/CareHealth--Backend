@@ -17,7 +17,7 @@ const seedAdmin = async () => {
       console.log('✓ Admin role exists:', adminRole._id.toString());
     }
 
-    const existingAdmin = await User.findOne({ email: 'admin@careflow.com' });
+    const existingAdmin = await User.findOne({ email: 'admin@carehealth.com' });
     if (existingAdmin) {
       console.log('⚠ Admin user already exists:', existingAdmin._id.toString());
       await closeDatabase();
@@ -29,7 +29,7 @@ const seedAdmin = async () => {
     const admin = await User.create({
       firstName: 'Super',
       lastName: 'Admin',
-      email: 'admin@careflow.com',
+      email: 'admin@carehealth.com',
       password: hashedPassword,
       phone: '+1234567890',
       role: adminRole._id,

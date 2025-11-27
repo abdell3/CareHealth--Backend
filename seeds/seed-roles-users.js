@@ -27,35 +27,35 @@ const seedRolesUsers = async () => {
       {
         firstName: 'John',
         lastName: 'Doctor',
-        email: 'doctor@careflow.com',
+        email: 'doctor@carehealth.com',
         phone: '+1234567891',
         roleName: 'doctor'
       },
       {
         firstName: 'Jane',
         lastName: 'Nurse',
-        email: 'nurse@careflow.com',
+        email: 'nurse@carehealth.com',
         phone: '+1234567892',
         roleName: 'nurse'
       },
       {
         firstName: 'Bob',
         lastName: 'Receptionist',
-        email: 'receptionist@careflow.com',
+        email: 'receptionist@carehealth.com',
         phone: '+1234567893',
         roleName: 'receptionist'
       },
       {
         firstName: 'Alice',
         lastName: 'Pharmacist',
-        email: 'pharmacist@careflow.com',
+        email: 'pharmacist@carehealth.com',
         phone: '+1234567894',
         roleName: 'pharmacist'
       },
       {
         firstName: 'Charlie',
         lastName: 'LabTech',
-        email: 'labtech@careflow.com',
+        email: 'labtech@carehealth.com',
         phone: '+1234567895',
         roleName: 'lab_technician'
       }
