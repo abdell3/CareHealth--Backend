@@ -43,13 +43,16 @@
     "dev": "nodemon server.js"
   },
   "devDependencies": {
+    "autoprefixer": "^10.4.22",
     "chai": "^6.2.1",
     "mocha": "^11.7.5",
     "mongodb-memory-server": "^10.3.0",
     "nodemon": "^3.1.11",
     "nyc": "^17.1.0",
+    "postcss": "^8.5.6",
     "sinon": "^21.0.0",
-    "supertest": "^7.1.4"
+    "supertest": "^7.1.4",
+    "tailwindcss": "^4.1.17"
   },
   "nyc": {
     "check-coverage": true,
