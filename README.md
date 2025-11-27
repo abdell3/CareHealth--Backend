@@ -1,4 +1,4 @@
-# CareFlow EHR Backend
+# CareHealth EHR Backend
 
 Electronic Health Records Management System - Backend API
 
@@ -38,8 +38,8 @@ Electronic Health Records Management System - Backend API
 
 ```bash
 # Clone repository
-git clone https://github.com/your-org/careflow-ehr-backend.git
-cd careflow-ehr-backend
+git clone https://github.com/your-org/carehealth-ehr-backend.git
+cd carehealth-ehr-backend
 
 # Install dependencies
 npm install

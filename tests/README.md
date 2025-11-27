@@ -1,4 +1,4 @@
-# Tests - CareFlow EHR Backend
+# Tests - CareHealth EHR Backend
 
 ## Structure des Tests
 

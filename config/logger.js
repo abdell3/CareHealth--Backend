@@ -112,7 +112,7 @@ const logger = winston.createLogger({
   levels: winston.config.npm.levels,
   level: logLevel,
   format: logFormat,
-  defaultMeta: { service: 'careflow-ehr' },
+  defaultMeta: { service: 'carehealth-ehr' },
   transports: transports,
   exceptionHandlers: [
     new winston.transports.File({ filename: path.join(logDir, 'exceptions.log') })
